@@ -152,6 +152,8 @@ static llama_model * llama_model_mapping(llm_arch arch, const llama_model_params
             return new llama_model_mamba2(params);
         case LLM_ARCH_JAMBA:
             return new llama_model_jamba(params);
+        case LLM_ARCH_MICRODAVI:
+            return new llama_model_microdavi(params);
         case LLM_ARCH_XVERSE:
             return new llama_model_xverse(params);
         case LLM_ARCH_COMMAND_R:
@@ -2082,6 +2084,9 @@ llama_memory_i * llama_model::create_memory(const llama_memory_params & params, 
                         filter_recr = [&](uint32_t il) {
                             return hparams.is_recr(il) && hparams.n_ff(il) == 0;
                         };
+                    } else if (arch == LLM_ARCH_MICRODAVI) {
+                        filter_attn = [&](uint32_t il) { return !hparams.is_recr(il); };
+                        filter_recr = [&](uint32_t il) { return hparams.is_recr(il); };
                     } else if (arch == LLM_ARCH_QWEN35 || arch == LLM_ARCH_QWEN35MOE) {
                         filter_attn = [&](uint32_t il) {
                             return il < hparams.n_layer() && !hparams.is_recr(il);
